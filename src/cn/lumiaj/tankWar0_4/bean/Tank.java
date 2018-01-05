@@ -21,44 +21,32 @@ public abstract class Tank {
 
 	public abstract void boom();
 
-	// 画出炮筒
-	public void paintPT(Graphics g, Direction dir) {
-		g.setColor(Color.ORANGE);
-		switch (dir) {
-		case U:
-			g.drawLine((int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE),
-					(int) (x + 0.5 * Constants.TANK_SIZE), y - 10);
-			break;
-		case D:
-			g.drawLine((int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE),
-					(int) (x + 0.5 * Constants.TANK_SIZE), y + Constants.TANK_SIZE + 10);
-			break;
-		case L:
-			g.drawLine(x - 10, (int) (y + 0.5 * Constants.TANK_SIZE), (int) (x + 0.5 * Constants.TANK_SIZE),
-					(int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case R:
-			g.drawLine(x + Constants.TANK_SIZE + 10, (int) (y + 0.5 * Constants.TANK_SIZE),
-					(int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case UR:
-			g.drawLine(x + Constants.TANK_SIZE, y, (int) (x + 0.5 * Constants.TANK_SIZE),
-					(int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case UL:
-			g.drawLine(x, y, (int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case DR:
-			g.drawLine(x + Constants.TANK_SIZE, y + Constants.TANK_SIZE, (int) (x + 0.5 * Constants.TANK_SIZE),
-					(int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case DL:
-			g.drawLine(x, y + Constants.TANK_SIZE, (int) (x + 0.5 * Constants.TANK_SIZE),
-					(int) (y + 0.5 * Constants.TANK_SIZE));
-			break;
-		case S:
-			break;
-		}
+	public List<Bullet> getBullets() {
+		return bullets;
+	}
+
+	public Direction getDirection() {
+		return direction;
+	}
+
+	public Direction getPtDirection() {
+		return ptDirection;
+	}
+
+	public Rectangle getRect() {
+		return new Rectangle(x, y, Constants.TANK_SIZE, Constants.TANK_SIZE);
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public boolean isAlive() {
+		return isAlive;
 	}
 
 	public void move() {
@@ -104,17 +92,44 @@ public abstract class Tank {
 			y = Constants.BOUND_HEIGHT - Constants.TANK_SIZE;
 	}
 
-	public void shut() {
-		bullets.add(new Bullet(x + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE),
-				y + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE), this));
-	}
-
-	public Rectangle getRect() {
-		return new Rectangle(x, y, Constants.TANK_SIZE, Constants.TANK_SIZE);
-	}
-
-	public List<Bullet> getBullets() {
-		return bullets;
+	// 画出炮筒
+	public void paintPT(Graphics g, Direction dir) {
+		g.setColor(Color.ORANGE);
+		switch (dir) {
+		case U:
+			g.drawLine((int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE),
+					(int) (x + 0.5 * Constants.TANK_SIZE), y - 10);
+			break;
+		case D:
+			g.drawLine((int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE),
+					(int) (x + 0.5 * Constants.TANK_SIZE), y + Constants.TANK_SIZE + 10);
+			break;
+		case L:
+			g.drawLine(x - 10, (int) (y + 0.5 * Constants.TANK_SIZE), (int) (x + 0.5 * Constants.TANK_SIZE),
+					(int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case R:
+			g.drawLine(x + Constants.TANK_SIZE + 10, (int) (y + 0.5 * Constants.TANK_SIZE),
+					(int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case UR:
+			g.drawLine(x + Constants.TANK_SIZE, y, (int) (x + 0.5 * Constants.TANK_SIZE),
+					(int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case UL:
+			g.drawLine(x, y, (int) (x + 0.5 * Constants.TANK_SIZE), (int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case DR:
+			g.drawLine(x + Constants.TANK_SIZE, y + Constants.TANK_SIZE, (int) (x + 0.5 * Constants.TANK_SIZE),
+					(int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case DL:
+			g.drawLine(x, y + Constants.TANK_SIZE, (int) (x + 0.5 * Constants.TANK_SIZE),
+					(int) (y + 0.5 * Constants.TANK_SIZE));
+			break;
+		case S:
+			break;
+		}
 	}
 
 	public void setDirection(Direction direction) {
@@ -122,16 +137,9 @@ public abstract class Tank {
 		this.ptDirection = direction;
 	}
 
-	public Direction getPtDirection() {
-		return ptDirection;
-	}
-
-	public Direction getDirection() {
-		return direction;
-	}
-
-	public boolean isAlive() {
-		return isAlive;
+	public void shut() {
+		bullets.add(new Bullet(x + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE),
+				y + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE), this));
 	}
 
 	public Tank() {

@@ -3,12 +3,18 @@ package cn.lumiaj.tankWar0_4.core;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Socket;
+import java.net.SocketException;
+
+import cn.lumiaj.tankWar0_4.udpPackage.TankGoOnline;
 
 public class NetClient {
 	public static int UDP_PORT_START = 12121;
 	private int udpPort;
 	private Client client;
+	DatagramSocket ds = null;
 
 	public void connect(String ip, int port) {
 		Socket s = null;
@@ -29,11 +35,19 @@ public class NetClient {
 				}
 			}
 		}
+		TankGoOnline tgo = new TankGoOnline(client.getPlayer());
+		tgo.send(ds, ip, Server.UDP_PORT);
 	}
+	
 
 	public NetClient(Client client) {
-		udpPort = UDP_PORT_START++;
+		this.udpPort = UDP_PORT_START++;
 		this.client = client;
+		try {
+			ds = new DatagramSocket(udpPort);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
