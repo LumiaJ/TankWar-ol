@@ -11,11 +11,100 @@ import cn.lumiaj.utils.Utils;
 
 public class Player extends Tank {
 	private boolean leftMove, rightMove, upMove, downMove;
-	private int HP;
-	private int bigbangCount;
+	private int HP, bigbangCount, id;
+
+	public void bigbang() {
+		for (Direction d : Direction.values()) {
+			if (d != Direction.S) {
+				ptDirection = d;
+				shut();
+			}
+		}
+		// bigbangCount--;
+	}
+
+	@Override
+	public void boom() {
+		HP -= 10;
+		if (HP <= 0) {
+			isAlive = false;
+			client.gameOver();
+		}
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void keyPressed(KeyEvent e) {
+		int code = e.getKeyCode();
+		// move
+		switch (code) {
+		case KeyEvent.VK_LEFT:
+			leftMove = true;
+			redirection();
+			break;
+		case KeyEvent.VK_RIGHT:
+			rightMove = true;
+			redirection();
+			break;
+		case KeyEvent.VK_UP:
+			upMove = true;
+			redirection();
+			break;
+		case KeyEvent.VK_DOWN:
+			downMove = true;
+			redirection();
+			break;
+		case KeyEvent.VK_S:
+			speed *= 2;
+			break;
+		}
+	}
+
+	public void keyReleased(KeyEvent e) {
+		int code = e.getKeyCode();
+		// stop
+		switch (code) {
+		case KeyEvent.VK_LEFT:
+			leftMove = false;
+			break;
+		case KeyEvent.VK_RIGHT:
+			rightMove = false;
+			break;
+		case KeyEvent.VK_UP:
+			upMove = false;
+			break;
+		case KeyEvent.VK_DOWN:
+			downMove = false;
+			break;
+		case KeyEvent.VK_A:
+			if(bullets.size()<=4) 
+			shut();
+			break;
+		case KeyEvent.VK_S:
+			speed = Constants.PLAYER_SPEED;
+			break;
+		case KeyEvent.VK_Q:
+			if (bigbangCount > 0) {
+				bigbang();
+				HP-=5;
+			}
+			break;
+		}
+		redirection();
+	}
 
 	public void paint(Graphics g) {
-		g.drawString(HP + "", 30, 60);
+		if(HP<=30) {
+			Color c = g.getColor();
+			g.setColor(Color.red);
+			g.drawString("HP:" + HP, x, y-18);
+			g.setColor(c);
+		}else {
+			g.drawString("HP:" + HP, x, y-18);
+		}
+		g.drawString("ID:" + id, x, y-3);
 		Color c = g.getColor();
 		g.setColor(Constants.PLAYER_COLOR);
 		// g.drawImage(Utils.getImage("p/1.png"),x,y,null);
@@ -59,73 +148,6 @@ public class Player extends Tank {
 		}
 	}
 
-	public void bigbang() {
-		for (Direction d : Direction.values()) {
-			if (d != Direction.S) {
-				ptDirection = d;
-				shut();
-			}
-		}
-		// bigbangCount--;
-	}
-
-	public void keyReleased(KeyEvent e) {
-		int code = e.getKeyCode();
-		// stop
-		switch (code) {
-		case KeyEvent.VK_LEFT:
-			leftMove = false;
-			break;
-		case KeyEvent.VK_RIGHT:
-			rightMove = false;
-			break;
-		case KeyEvent.VK_UP:
-			upMove = false;
-			break;
-		case KeyEvent.VK_DOWN:
-			downMove = false;
-			break;
-		case KeyEvent.VK_A:
-			shut();
-			break;
-		case KeyEvent.VK_S:
-			speed = Constants.PLAYER_SPEED;
-			break;
-		case KeyEvent.VK_Q:
-			if (bigbangCount > 0) {
-				bigbang();
-			}
-			break;
-		}
-		redirection();
-	}
-
-	public void keyPressed(KeyEvent e) {
-		int code = e.getKeyCode();
-		// move
-		switch (code) {
-		case KeyEvent.VK_LEFT:
-			leftMove = true;
-			redirection();
-			break;
-		case KeyEvent.VK_RIGHT:
-			rightMove = true;
-			redirection();
-			break;
-		case KeyEvent.VK_UP:
-			upMove = true;
-			redirection();
-			break;
-		case KeyEvent.VK_DOWN:
-			downMove = true;
-			redirection();
-			break;
-		case KeyEvent.VK_S:
-			speed *= 2;
-			break;
-		}
-	}
-
 	public void redirection() {
 		if (leftMove && !rightMove && !upMove && !downMove)
 			direction = Direction.L;
@@ -150,6 +172,10 @@ public class Player extends Tank {
 		}
 	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public Player(int x, int y, Client client) {
 		this.x = x;
 		this.y = y;
@@ -159,15 +185,6 @@ public class Player extends Tank {
 		this.ptDirection = Direction.U;
 		this.HP = 100;
 		this.bigbangCount = 3;
-	}
-
-	@Override
-	public void boom() {
-		HP -= 10;
-		if (HP <= 0) {
-			isAlive = false;
-			client.gameOver();
-		}
 	}
 
 }

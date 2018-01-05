@@ -54,7 +54,8 @@ public class Client extends Frame {
 	@Override
 	public void paint(Graphics g) {
 		player.paint(g);
-		g.drawString("敌军数量:"+robots.size(), 60, 60);
+		g.drawString("敌军数量:"+robots.size(), 30, 80);
+		g.drawString("我方子弹数量:"+player.getBullets().size(), 30, 100);
 //		for(int i=0;i<robots.size();i++) {
 //			robots.get(i).paint(g);
 //		}
@@ -93,7 +94,7 @@ public class Client extends Frame {
 		this.setResizable(false);
 		this.setTitle("Tank War");
 		this.setBackground(Color.GRAY);
-		this.nc = new NetClient();
+		this.nc = new NetClient(this);
 		//添加窗口的关闭
 		this.addWindowListener(new WindowAdapter() {
 			@Override
