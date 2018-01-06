@@ -8,29 +8,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
-import cn.lumiaj.tankWar0_4.bean.Player;
 import cn.lumiaj.tankWar0_4.core.Client;
 import cn.lumiaj.utils.Direction;
 
-public class TankGoOnline implements UDPPackage {
-	private Player player;
+public class TankMoveMsg implements UDPPackage{
+	private int id, msgType;
+	private Direction direction;
 	private Client client;
-	private int msgType;
-
-	@Override
-	public void parse(DataInputStream dis) {
-		try {
-			int id = dis.readInt();
-			if (id == client.getPlayer().getId())
-				return;
-			int x = dis.readInt();
-			int y = dis.readInt();
-			Direction direction = Direction.values()[dis.readInt()];
-			client.getOther().add(new Player(id, x, y, direction, client));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	@Override
 	public void send(DatagramSocket ds, String ip, int udpPort) {
@@ -38,10 +22,8 @@ public class TankGoOnline implements UDPPackage {
 		DataOutputStream dos = new DataOutputStream(baos);
 		try {
 			dos.writeInt(msgType);
-			dos.writeInt(player.getId());
-			dos.writeInt(player.getX());
-			dos.writeInt(player.getY());
-			dos.writeInt(player.getDirection().ordinal());
+			dos.writeInt(id);
+			dos.writeInt(direction.ordinal());
 			byte[] bytes = baos.toByteArray();
 			DatagramPacket dp = new DatagramPacket(bytes, bytes.length, new InetSocketAddress(ip, udpPort));
 			ds.send(dp);
@@ -50,14 +32,35 @@ public class TankGoOnline implements UDPPackage {
 		}
 	}
 
-	public TankGoOnline(Client client) {
+	@Override
+	public void parse(DataInputStream dis) {
+		try {
+			int id = dis.readInt();
+			if(id == client.getPlayer().getId()) 
+				return;
+			Direction direction = Direction.values()[dis.readInt()];
+			for(int i=0; i<client.getOther().size();i++) {
+				if(client.getOther().get(i).getId() == id) {
+					client.getOther().get(i).setDirection(direction);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public TankMoveMsg(int id, Direction direction) {
 		this();
+		this.id = id;
+		this.direction = direction;
+	}
+	
+	public TankMoveMsg(Client client) {
 		this.client = client;
-		this.player = this.client.getPlayer();
 	}
-
-	public TankGoOnline() {
-		this.msgType = UDPPackage.TANK_ONLINE_MSG;
+	
+	public TankMoveMsg() {
+		this.msgType = UDPPackage.TANK_MOVE_MSG;
 	}
-
+	
 }

@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
 import cn.lumiaj.tankWar0_4.core.Client;
+import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
 import cn.lumiaj.utils.Constants;
 import cn.lumiaj.utils.Direction;
 import cn.lumiaj.utils.Utils;
@@ -149,6 +150,8 @@ public class Player extends Tank {
 	}
 
 	public void redirection() {
+		Direction oldDir = direction;
+		
 		if (leftMove && !rightMove && !upMove && !downMove)
 			direction = Direction.L;
 		else if (!leftMove && rightMove && !upMove && !downMove)
@@ -170,6 +173,11 @@ public class Player extends Tank {
 		if (direction != Direction.S) {
 			ptDirection = direction;
 		}
+		
+		if(oldDir != direction) {
+			client.getNc().send(new TankMoveMsg(this.id, direction));
+		}
+		
 	}
 
 	public void setId(int id) {
@@ -177,8 +185,14 @@ public class Player extends Tank {
 	}
 
 	public Player(int x, int y, Client client) {
+		this(666,x,y,Direction.S,client);
+	}
+	
+	public Player(int id, int x, int y, Direction direction, Client client) {
+		this.id = id;
 		this.x = x;
 		this.y = y;
+		this.direction = direction;
 		this.client = client;
 		this.speed = Constants.PLAYER_SPEED;
 		this.bulletColor = Constants.PLAYER_BULLET_COLOR;

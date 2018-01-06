@@ -21,7 +21,7 @@ public class Server {
 	@SuppressWarnings("resource")
 	public void start() {
 		new Thread(new UDPThread()).start();
-		
+
 		ServerSocket ss = null;
 		try {
 			ss = new ServerSocket(TCP_PORT);
@@ -94,7 +94,7 @@ public class Server {
 
 	private class UDPThread implements Runnable {
 		private byte[] bytes = new byte[1024];
-		
+
 		@Override
 		public void run() {
 			DatagramSocket ds = null;
@@ -104,20 +104,19 @@ public class Server {
 			} catch (SocketException e) {
 				e.printStackTrace();
 			}
-			System.out.println("UDP thread start , port :" +UDP_PORT);
-			while(ds!=null) {
+			System.out.println("UDP thread start , port :" + UDP_PORT);
+			while (ds != null) {
 				dp = new DatagramPacket(bytes, bytes.length);
 				try {
 					ds.receive(dp);
-					System.out.println("receive a package");
-					for(int i=0;i<clients.size();i++) {
+					for (int i = 0; i < clients.size(); i++) {
 						dp.setSocketAddress(new InetSocketAddress(clients.get(i).getIP(), clients.get(i).getUdpPort()));
 						ds.send(dp);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 		}
 

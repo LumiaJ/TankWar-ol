@@ -25,21 +25,8 @@ public class Bullet {
 	
 	public void isHitted(Graphics g) {
 		//player的子弹检测
-		if(tank instanceof Player) {
-			for(int i=0;i<tank.client.getRobots().size();i++) {
-				if(getRect().intersects(tank.client.getRobots().get(i).getRect())) {
-					tank.client.getRobots().get(i).boom();
-					tank.getBullets().remove(this);
-				}
-			}
-		}
-		//robot的子弹检测
-		if(tank instanceof Robot) {
-			if(getRect().intersects(tank.client.getPlayer().getRect())) {
-				tank.client.getPlayer().boom();
-				tank.getBullets().remove(this);
-			}
-		}
+		
+		
 	}
 
 	public void fly() {

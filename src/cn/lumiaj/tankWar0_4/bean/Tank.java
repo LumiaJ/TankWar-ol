@@ -12,10 +12,9 @@ import cn.lumiaj.utils.Direction;
 
 public abstract class Tank {
 	protected int x, y, speed;
-	protected List<Bullet> bullets = new ArrayList<Bullet>();
-	protected Direction direction = Direction.S;
+	protected List<Bullet> bullets;
+	protected Direction direction, ptDirection;
 	protected Color bulletColor;
-	protected Direction ptDirection;
 	protected Client client;
 	protected boolean isAlive;
 
@@ -134,7 +133,9 @@ public abstract class Tank {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
-		this.ptDirection = direction;
+		if(direction!=Direction.S) {
+			this.ptDirection = direction;
+		}
 	}
 
 	public void shut() {
@@ -143,6 +144,7 @@ public abstract class Tank {
 	}
 
 	public Tank() {
+		this.bullets = new ArrayList<Bullet>();
 		isAlive = true;
 	}
 

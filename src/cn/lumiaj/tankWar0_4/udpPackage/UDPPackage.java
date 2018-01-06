@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.net.DatagramSocket;
 
 public interface UDPPackage {
+	public static final int TANK_ONLINE_MSG = 1;
+	public static final int TANK_MOVE_MSG = 2;
+	
 	/**
 	 * 向指定的服务器端发送数据
 	 * @param ds UDP协议的socket
@@ -17,5 +20,5 @@ public interface UDPPackage {
 	 * @param dis 包含DatagramPackage的DataInputStream
 	 */
 	void parse(DataInputStream dis);
-		
+	
 }

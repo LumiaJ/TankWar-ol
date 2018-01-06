@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import cn.lumiaj.tankWar0_4.udpPackage.TankGoOnline;
+import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.UDPPackage;
 
 public class NetClient {
@@ -41,12 +42,16 @@ public class NetClient {
 				}
 			}
 		}
-		TankGoOnline tgo = new TankGoOnline(client.getPlayer());
+		TankGoOnline tgo = new TankGoOnline(client);
 		send(tgo);
 	}
 
 	public void send(UDPPackage data) {
 		data.send(ds, "localhost", Server.UDP_PORT);
+	}
+
+	public DatagramSocket getDs() {
+		return ds;
 	}
 
 	public NetClient(Client client) {
@@ -69,7 +74,6 @@ public class NetClient {
 				dp = new DatagramPacket(bytes, bytes.length);
 				try {
 					ds.receive(dp);
-					System.out.println("receive a package from server");
 					parse(dp);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -80,8 +84,21 @@ public class NetClient {
 		private void parse(DatagramPacket dp) {
 			ByteArrayInputStream bais = new ByteArrayInputStream(bytes, 0, dp.getLength());
 			DataInputStream dis = new DataInputStream(bais);
-			TankGoOnline tgo = new TankGoOnline();
-			tgo.parse(dis);
+			UDPPackage data = null;
+			try {
+				switch(dis.readInt()) {
+				case UDPPackage.TANK_ONLINE_MSG:
+					data = new TankGoOnline(NetClient.this.client);
+					break;
+				case UDPPackage.TANK_MOVE_MSG:
+					data = new TankMoveMsg(NetClient.this.client);
+					break;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(data != null)
+				data.parse(dis);
 		}
 	}
 
