@@ -65,6 +65,12 @@ public class Client extends Frame {
 //		}
 	}
 	
+	public void initPlayer() {
+		int x = (int)(Math.random()*(Constants.BOUND_WIDTH-Constants.TANK_SIZE));
+		int y = (int)(Math.random()*(Constants.BOUND_HEIGHT-Constants.TANK_SIZE*2)+Constants.TANK_SIZE);
+		this.player = new Player(x,y,this);
+	}
+	
 	/**
 	 * 添加坦克
 	 * @param count 坦克的数量
@@ -105,7 +111,7 @@ public class Client extends Frame {
 		//添加键盘控制
 		this.addKeyListener(new KeyMonitor());
 		//添加坦克
-		this.player = new Player(50,60,this);
+		initPlayer();
 		this.robots = new ArrayList<Robot>();
 //		addRobots(count);
 		//线程开始

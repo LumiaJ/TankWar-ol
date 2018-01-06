@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -50,7 +51,6 @@ public class Server {
 					}
 				}
 			}
-
 		}
 
 	}
@@ -110,6 +110,10 @@ public class Server {
 				try {
 					ds.receive(dp);
 					System.out.println("receive a package");
+					for(int i=0;i<clients.size();i++) {
+						dp.setSocketAddress(new InetSocketAddress(clients.get(i).getIP(), clients.get(i).getUdpPort()));
+						ds.send(dp);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
