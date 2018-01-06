@@ -9,17 +9,32 @@ import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import cn.lumiaj.tankWar0_4.udpPackage.OfflineMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.TankGoOnline;
 import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.UDPPackage;
 
 public class NetClient {
-	public static int UDP_PORT_START = 12121;
 	private int udpPort;
 	private Client client;
-	DatagramSocket ds = null;
+	private DatagramSocket ds = null;
+	private boolean existDs;
 
-	public void connect(String ip, int port) {
+	public void setUdpPort(int udpPort) {
+		this.udpPort = udpPort;
+	}
+
+	public boolean connect(String ip, int port) {
+		if(!existDs) {
+			try {
+				ds = new DatagramSocket(udpPort);
+				existDs = true;
+			} catch (SocketException e) {
+				e.printStackTrace();
+				existDs =false;
+			}
+		}
+		
 		Socket s = null;
 		try {
 			s = new Socket(ip, port);
@@ -32,6 +47,7 @@ public class NetClient {
 			client.getPlayer().setId(dis.readInt());
 		} catch (Exception e) {
 			System.err.println("服务器未连接");
+			return false;
 		} finally {
 			if (s != null) {
 				try {
@@ -44,6 +60,7 @@ public class NetClient {
 		}
 		TankGoOnline tgo = new TankGoOnline(client);
 		send(tgo);
+		return true;
 	}
 
 	public void send(UDPPackage data) {
@@ -55,13 +72,9 @@ public class NetClient {
 	}
 
 	public NetClient(Client client) {
-		this.udpPort = (int) (Math.random() * 1000 + 10000);
+		// this.udpPort = (int) (Math.random() * 1000 + 10000);
 		this.client = client;
-		try {
-			ds = new DatagramSocket(udpPort);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
+		this.existDs = false;
 	}
 
 	private class UDPRecThread implements Runnable {
@@ -86,18 +99,21 @@ public class NetClient {
 			DataInputStream dis = new DataInputStream(bais);
 			UDPPackage data = null;
 			try {
-				switch(dis.readInt()) {
+				switch (dis.readInt()) {
 				case UDPPackage.TANK_ONLINE_MSG:
 					data = new TankGoOnline(NetClient.this.client);
 					break;
 				case UDPPackage.TANK_MOVE_MSG:
 					data = new TankMoveMsg(NetClient.this.client);
 					break;
+				case UDPPackage.OFFLINE_MSG:
+					data = new OfflineMsg(NetClient.this.client);
+					break;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if(data != null)
+			if (data != null)
 				data.parse(dis);
 		}
 	}

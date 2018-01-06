@@ -29,7 +29,6 @@ public class Player extends Tank {
 		HP -= 10;
 		if (HP <= 0) {
 			isAlive = false;
-			client.gameOver();
 		}
 	}
 
@@ -174,7 +173,7 @@ public class Player extends Tank {
 			ptDirection = direction;
 		}
 		
-		if(oldDir != direction) {
+		if(oldDir != direction && client.isOnline()) {
 			client.getNc().send(new TankMoveMsg(this.id, x, y, direction));
 		}
 		

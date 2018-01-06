@@ -32,7 +32,6 @@ public class TankGoOnline implements UDPPackage {
 			}
 			client.getOther().add(new Player(id, x, y, direction, client));
 			client.getNc().send(this);
-			System.out.println("rec");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
