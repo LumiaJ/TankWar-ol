@@ -130,6 +130,11 @@ public abstract class Tank {
 			break;
 		}
 	}
+	
+	public void setPosition(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;

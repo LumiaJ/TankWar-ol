@@ -12,7 +12,7 @@ import cn.lumiaj.tankWar0_4.core.Client;
 import cn.lumiaj.utils.Direction;
 
 public class TankMoveMsg implements UDPPackage{
-	private int id, msgType;
+	private int id, msgType, x, y;
 	private Direction direction;
 	private Client client;
 
@@ -23,6 +23,8 @@ public class TankMoveMsg implements UDPPackage{
 		try {
 			dos.writeInt(msgType);
 			dos.writeInt(id);
+			dos.writeInt(x);
+			dos.writeInt(y);
 			dos.writeInt(direction.ordinal());
 			byte[] bytes = baos.toByteArray();
 			DatagramPacket dp = new DatagramPacket(bytes, bytes.length, new InetSocketAddress(ip, udpPort));
@@ -38,9 +40,12 @@ public class TankMoveMsg implements UDPPackage{
 			int id = dis.readInt();
 			if(id == client.getPlayer().getId()) 
 				return;
+			this.x = dis.readInt();
+			this.y = dis.readInt();
 			Direction direction = Direction.values()[dis.readInt()];
 			for(int i=0; i<client.getOther().size();i++) {
 				if(client.getOther().get(i).getId() == id) {
+					client.getOther().get(i).setPosition(x, y);
 					client.getOther().get(i).setDirection(direction);
 				}
 			}
@@ -49,9 +54,11 @@ public class TankMoveMsg implements UDPPackage{
 		}
 	}
 
-	public TankMoveMsg(int id, Direction direction) {
+	public TankMoveMsg(int id, int x, int y, Direction direction) {
 		this();
 		this.id = id;
+		this.x = x;
+		this.y = y;
 		this.direction = direction;
 	}
 	

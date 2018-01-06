@@ -175,7 +175,7 @@ public class Player extends Tank {
 		}
 		
 		if(oldDir != direction) {
-			client.getNc().send(new TankMoveMsg(this.id, direction));
+			client.getNc().send(new TankMoveMsg(this.id, x, y, direction));
 		}
 		
 	}
