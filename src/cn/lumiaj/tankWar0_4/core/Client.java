@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -19,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.lumiaj.tankWar0_4.bean.Player;
-import cn.lumiaj.tankWar0_4.udpPackage.OfflineMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.GameOverMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankOfflineMsg;
 import cn.lumiaj.utils.Constants;
 
 @SuppressWarnings("all")
@@ -29,7 +31,7 @@ public class Client extends Frame {
 	private List<Player> other;
 	private NetClient nc;
 	private ConnDialog dialog;
-	private boolean online;
+	private boolean online, gameOver;
 
 	public boolean isOnline() {
 		return online;
@@ -58,6 +60,11 @@ public class Client extends Frame {
 
 	@Override
 	public void paint(Graphics g) {
+		if(gameOver) {
+			g.setFont(new Font("微软雅黑", Font.BOLD, 40));
+			g.drawString("GAME OVER!", 200, 300);
+			return;
+		}
 		g.drawString("我方子弹数量:" + player.getBullets().size(), 30, 100);
 		player.paint(g);
 		for (int i = 0; i < other.size(); i++) {
@@ -69,6 +76,7 @@ public class Client extends Frame {
 		int x = (int) (Math.random() * (Constants.BOUND_WIDTH - Constants.TANK_SIZE));
 		int y = (int) (Math.random() * (Constants.BOUND_HEIGHT - Constants.TANK_SIZE * 2) + Constants.TANK_SIZE);
 		this.player = new Player(x, y, this);
+		this.player.setPrimary(true);
 	}
 
 	/**
@@ -86,7 +94,7 @@ public class Client extends Frame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if (online) {
-					Client.this.nc.send(new OfflineMsg(player.getId(), Client.this));
+					Client.this.nc.send(new TankOfflineMsg(player.getId(), Client.this));
 					nc.connect(dialog.tfIP.getText(), Integer.parseInt(dialog.tfPort.getText()));
 				}
 				System.exit(0);
@@ -100,9 +108,16 @@ public class Client extends Frame {
 		// 线程开始
 		this.dialog = new ConnDialog();
 		this.online = false;
+		this.gameOver = false;
 		new Thread(new PaintThread()).start();
 	}
 
+	public void gameOver() {
+		gameOver = true;
+		if(online)
+			nc.send(new GameOverMsg(player.getId()));
+	}
+	
 	public NetClient getNc() {
 		return nc;
 	}
@@ -135,6 +150,7 @@ public class Client extends Frame {
 	private class PaintThread implements Runnable {
 		@Override
 		public void run() {
+//			while (!gameOver) {
 			while (true) {
 				try {
 					repaint();
@@ -159,8 +175,8 @@ public class Client extends Frame {
 
 		private void init() {
 			b = new Button("OK!");
-			tfIP = new TextField("localhost", 12);
-			tfPort = new TextField(2333 + "", 4);
+			tfIP = new TextField("198.13.46.5", 12);
+			tfPort = new TextField(12333 + "", 4);
 			tfUDPPort = new TextField("" + 10000, 4);
 
 			this.setLayout(new FlowLayout());

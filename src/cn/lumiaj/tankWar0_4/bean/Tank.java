@@ -7,16 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.lumiaj.tankWar0_4.core.Client;
+import cn.lumiaj.tankWar0_4.udpPackage.TankShutMsg;
 import cn.lumiaj.utils.Constants;
 import cn.lumiaj.utils.Direction;
 
 public abstract class Tank {
-	protected int x, y, speed;
+	protected int x, y, speed, id;
 	protected List<Bullet> bullets;
 	protected Direction direction, ptDirection;
 	protected Color bulletColor;
 	protected Client client;
-	protected boolean isAlive;
 
 	public abstract void boom();
 
@@ -28,6 +28,14 @@ public abstract class Tank {
 		return direction;
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public Direction getPtDirection() {
 		return ptDirection;
 	}
@@ -36,16 +44,20 @@ public abstract class Tank {
 		return new Rectangle(x, y, Constants.TANK_SIZE, Constants.TANK_SIZE);
 	}
 
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
 	public int getX() {
 		return x;
 	}
 
 	public int getY() {
 		return y;
-	}
-
-	public boolean isAlive() {
-		return isAlive;
 	}
 
 	public void move() {
@@ -130,7 +142,7 @@ public abstract class Tank {
 			break;
 		}
 	}
-	
+
 	public void setPosition(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -138,19 +150,30 @@ public abstract class Tank {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
-		if(direction!=Direction.S) {
+		if (direction != Direction.S) {
 			this.ptDirection = direction;
 		}
 	}
 
+	/**
+	 * 这个方法只有接收到数据时才能调用，否则不能发送shut动作
+	 * 
+	 * @param b
+	 */
+	public void shut(Bullet b) {
+		bullets.add(b);
+	}
+
 	public void shut() {
-		bullets.add(new Bullet(x + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE),
-				y + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE), this));
+		Bullet b = new Bullet(x + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE),
+				y + (int) (0.5 * Constants.TANK_SIZE) - (int) (0.5 * Constants.BULLET_SIZE), this);
+		bullets.add(b);
+		if (client.isOnline())
+			client.getNc().send(new TankShutMsg(b, client));
 	}
 
 	public Tank() {
 		this.bullets = new ArrayList<Bullet>();
-		isAlive = true;
 	}
 
 }

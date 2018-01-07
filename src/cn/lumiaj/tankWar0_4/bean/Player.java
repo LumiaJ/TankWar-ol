@@ -3,37 +3,58 @@ package cn.lumiaj.tankWar0_4.bean;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import cn.lumiaj.tankWar0_4.core.Client;
+import cn.lumiaj.tankWar0_4.udpPackage.BulletDieMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankHPChangeMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankSpeedChangeMsg;
 import cn.lumiaj.utils.Constants;
 import cn.lumiaj.utils.Direction;
 import cn.lumiaj.utils.Utils;
 
 public class Player extends Tank {
-	private boolean leftMove, rightMove, upMove, downMove;
-	private int HP, bigbangCount, id;
+	private boolean leftMove, rightMove, upMove, downMove, primary;
+	private int HP, bigbangCount;
+	
+	private void isHitted() {
+		if(client.isOnline() && primary) {
+			for(int i=0;i<client.getOther().size();i++) {
+				List<Bullet> enemyBullets = client.getOther().get(i).getBullets();
+				for(int j=0;j<enemyBullets.size();j++) {
+					if(this.getRect().intersects(enemyBullets.get(j).getRect())) {
+						this.boom();
+						this.client.getNc().send(new BulletDieMsg(client.getOther().get(i).getId(), j));
+					}
+				}
+			}
+		}
+	}
 
 	public void bigbang() {
+		Direction mark = ptDirection;
 		for (Direction d : Direction.values()) {
 			if (d != Direction.S) {
 				ptDirection = d;
 				shut();
 			}
 		}
+		ptDirection = mark;
+		HP -= 5;
+		if(client.isOnline())
+			client.getNc().send(new TankHPChangeMsg(HP, id));
 		// bigbangCount--;
 	}
 
 	@Override
 	public void boom() {
 		HP -= 10;
+		if(client.isOnline())
+			client.getNc().send(new TankHPChangeMsg(HP, id));
 		if (HP <= 0) {
-			isAlive = false;
+			client.gameOver();
 		}
-	}
-
-	public int getId() {
-		return id;
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -58,6 +79,8 @@ public class Player extends Tank {
 			break;
 		case KeyEvent.VK_S:
 			speed *= 2;
+			if (client.isOnline())
+				client.getNc().send(new TankSpeedChangeMsg(speed, client));
 			break;
 		}
 	}
@@ -79,16 +102,17 @@ public class Player extends Tank {
 			downMove = false;
 			break;
 		case KeyEvent.VK_A:
-			if(bullets.size()<=4) 
-			shut();
+			if (bullets.size() <= 4)
+				shut();
 			break;
 		case KeyEvent.VK_S:
 			speed = Constants.PLAYER_SPEED;
+			if (client.isOnline())
+				client.getNc().send(new TankSpeedChangeMsg(speed, client));
 			break;
 		case KeyEvent.VK_Q:
 			if (bigbangCount > 0) {
 				bigbang();
-				HP-=5;
 			}
 			break;
 		}
@@ -96,15 +120,16 @@ public class Player extends Tank {
 	}
 
 	public void paint(Graphics g) {
-		if(HP<=30) {
+		if (HP <= 30) {
 			Color c = g.getColor();
 			g.setColor(Color.red);
-			g.drawString("HP:" + HP, x, y-18);
+			g.drawString("HP:" + HP, x, y - 18);
 			g.setColor(c);
-		}else {
-			g.drawString("HP:" + HP, x, y-18);
+		} else {
+			g.drawString("HP:" + HP, x, y - 18);
 		}
-		g.drawString("ID:" + id, x, y-3);
+		isHitted();
+		g.drawString("ID:" + id, x, y - 3);
 		Color c = g.getColor();
 		g.setColor(Constants.PLAYER_COLOR);
 		// g.drawImage(Utils.getImage("p/1.png"),x,y,null);
@@ -150,7 +175,7 @@ public class Player extends Tank {
 
 	public void redirection() {
 		Direction oldDir = direction;
-		
+
 		if (leftMove && !rightMove && !upMove && !downMove)
 			direction = Direction.L;
 		else if (!leftMove && rightMove && !upMove && !downMove)
@@ -172,21 +197,33 @@ public class Player extends Tank {
 		if (direction != Direction.S) {
 			ptDirection = direction;
 		}
-		
-		if(oldDir != direction && client.isOnline()) {
+
+		if (oldDir != direction && client.isOnline()) {
 			client.getNc().send(new TankMoveMsg(this.id, x, y, direction));
 		}
-		
-	}
 
-	public void setId(int id) {
-		this.id = id;
+	}
+	
+	/**
+	 * 通过接受服务器指令调用Others中坦克的血量设置，Player不调用此方法
+	 * @param hP
+	 */
+	public void setHP(int hP) {
+		HP = hP;
+	}
+	
+	/**
+	 * 用于和Other区分开，在检测是否被击中时
+	 * @param primary
+	 */
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
 	}
 
 	public Player(int x, int y, Client client) {
-		this(666,x,y,Direction.S,client);
+		this(666, x, y, Direction.S, client);
 	}
-	
+
 	public Player(int id, int x, int y, Direction direction, Client client) {
 		this.id = id;
 		this.x = x;
@@ -198,6 +235,7 @@ public class Player extends Tank {
 		this.ptDirection = Direction.U;
 		this.HP = 100;
 		this.bigbangCount = 3;
+		this.primary = false;
 	}
 
 }

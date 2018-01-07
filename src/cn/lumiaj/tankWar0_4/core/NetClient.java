@@ -9,9 +9,14 @@ import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import cn.lumiaj.tankWar0_4.udpPackage.OfflineMsg;
-import cn.lumiaj.tankWar0_4.udpPackage.TankGoOnline;
+import cn.lumiaj.tankWar0_4.udpPackage.BulletDieMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.GameOverMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankHPChangeMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankOfflineMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankOnlineMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankShutMsg;
+import cn.lumiaj.tankWar0_4.udpPackage.TankSpeedChangeMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.UDPPackage;
 
 public class NetClient {
@@ -58,7 +63,7 @@ public class NetClient {
 				}
 			}
 		}
-		TankGoOnline tgo = new TankGoOnline(client);
+		TankOnlineMsg tgo = new TankOnlineMsg(client);
 		send(tgo);
 		return true;
 	}
@@ -101,13 +106,28 @@ public class NetClient {
 			try {
 				switch (dis.readInt()) {
 				case UDPPackage.TANK_ONLINE_MSG:
-					data = new TankGoOnline(NetClient.this.client);
+					data = new TankOnlineMsg(NetClient.this.client);
 					break;
 				case UDPPackage.TANK_MOVE_MSG:
 					data = new TankMoveMsg(NetClient.this.client);
 					break;
-				case UDPPackage.OFFLINE_MSG:
-					data = new OfflineMsg(NetClient.this.client);
+				case UDPPackage.TANK_OFFLINE_MSG:
+					data = new TankOfflineMsg(NetClient.this.client);
+					break;
+				case UDPPackage.TANK_SHUT_MSG:
+					data = new TankShutMsg(NetClient.this.client);
+					break;
+				case UDPPackage.TANK_SPEED_CHANGE_MSG:
+					data = new TankSpeedChangeMsg(NetClient.this.client);
+					break;
+				case UDPPackage.TANK_HP_CHANGE_MSG:
+					data = new TankHPChangeMsg(NetClient.this.client);
+					break;
+				case UDPPackage.BULLET_DIE_MSG:
+					data = new BulletDieMsg(NetClient.this.client);
+					break;
+				case UDPPackage.GAME_OVER_MSG:
+					data = new GameOverMsg(NetClient.this.client);
 					break;
 				}
 			} catch (IOException e) {

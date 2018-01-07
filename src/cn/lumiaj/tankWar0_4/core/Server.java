@@ -14,8 +14,8 @@ import java.util.List;
 
 public class Server {
 	public static int id = 100;
-	public static final int TCP_PORT = 2333;
-	public static final int UDP_PORT = 2334;
+	public static final int TCP_PORT = 12333;
+	public static final int UDP_PORT = 12334;
 	private List<CClient> clients;
 	private boolean exist;
 

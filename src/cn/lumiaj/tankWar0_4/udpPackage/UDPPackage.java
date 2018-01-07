@@ -6,7 +6,12 @@ import java.net.DatagramSocket;
 public interface UDPPackage {
 	public static final int TANK_ONLINE_MSG = 1;
 	public static final int TANK_MOVE_MSG = 2;
-	public static final int OFFLINE_MSG = 3;
+	public static final int TANK_OFFLINE_MSG = 3;
+	public static final int TANK_SHUT_MSG = 4;
+	public static final int TANK_SPEED_CHANGE_MSG = 5;
+	public static final int TANK_HP_CHANGE_MSG = 6;
+	public static final int BULLET_DIE_MSG = 7;
+	public static final int GAME_OVER_MSG = 8;
 	
 	/**
 	 * 向指定的服务器端发送数据

@@ -16,17 +16,10 @@ public class Bullet {
 	public void paint(Graphics g) {
 		fly();
 		checkDisappear();
-		isHitted(g);
 		Color c = g.getColor();
 		g.setColor(color);
 		g.fillOval(x, y, Constants.BULLET_SIZE, Constants.BULLET_SIZE);
 		g.setColor(c);
-	}
-	
-	public void isHitted(Graphics g) {
-		//player的子弹检测
-		
-		
 	}
 
 	public void fly() {
@@ -59,16 +52,17 @@ public class Bullet {
 			y += 0.7 * Constants.BULLET_SPEED;
 			x -= 0.7 * Constants.BULLET_SPEED;
 			break;
-		case S: break;
+		case S:
+			break;
 		}
 	}
-	
+
 	public void checkDisappear() {
-		if(x<0 || x > Constants.BOUND_WIDTH || y<30 || y>Constants.BOUND_HEIGHT) {
+		if (x < 0 || x > Constants.BOUND_WIDTH || y < 30 || y > Constants.BOUND_HEIGHT) {
 			tank.getBullets().remove(this);
 		}
 	}
-	
+
 	public Rectangle getRect() {
 		return new Rectangle(x, y, Constants.BULLET_SIZE, Constants.BULLET_SIZE);
 	}
@@ -79,6 +73,18 @@ public class Bullet {
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+	
+	public Tank getPlayer() {
+		return tank;
+	}
+
+	public Direction getDirection() {
+		return direction;
+	}
+	
+	public void setDirection(Direction direction) {
+		this.direction = direction;
 	}
 
 	public int getX() {
@@ -96,14 +102,14 @@ public class Bullet {
 	public void setY(int y) {
 		this.y = y;
 	}
-
-	public Bullet(int x, int y, Tank tank) {
+	
+	public Bullet(int x, int y, Tank player) {
 		super();
 		this.x = x;
 		this.y = y;
-		this.tank = tank;
-		this.direction = tank.getPtDirection();
-		this.color = tank.bulletColor;
+		this.tank = player;
+		this.direction = player.getPtDirection();
+		this.color = player.bulletColor;
 	}
 
 }
