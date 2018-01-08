@@ -75,7 +75,7 @@ public class Bullet {
 		this.color = color;
 	}
 	
-	public Tank getPlayer() {
+	public Tank getTank() {
 		return tank;
 	}
 
@@ -103,13 +103,13 @@ public class Bullet {
 		this.y = y;
 	}
 	
-	public Bullet(int x, int y, Tank player) {
+	public Bullet(int x, int y, Tank tank) {
 		super();
 		this.x = x;
 		this.y = y;
-		this.tank = player;
-		this.direction = player.getPtDirection();
-		this.color = player.bulletColor;
+		this.tank = tank;
+		this.direction = tank.getPtDirection();
+		this.color = tank.bulletColor;
 	}
 
 }

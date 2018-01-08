@@ -2,6 +2,7 @@ package cn.lumiaj.tankWar0_4.core;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Random;
 
 import cn.lumiaj.utils.Constants;
 import cn.lumiaj.utils.Utils;
@@ -25,8 +26,8 @@ public class Explode {
 	}
 	
 	public Explode(int x, int y) {
-		this.x = x;
-		this.y = y;
+		this.x = x-new Random().nextInt(30);
+		this.y = y-new Random().nextInt(30);
 		this.step = 1;
 		this.isLive = true;
 	}

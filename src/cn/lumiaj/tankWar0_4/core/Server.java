@@ -112,6 +112,7 @@ public class Server {
 				dp = new DatagramPacket(bytes, bytes.length);
 				try {
 					ds.receive(dp);
+					System.out.println("recevice a udp package");
 					for (int i = 0; i < clients.size(); i++) {
 						dp.setSocketAddress(new InetSocketAddress(clients.get(i).getIP(), clients.get(i).getUdpPort()));
 						ds.send(dp);

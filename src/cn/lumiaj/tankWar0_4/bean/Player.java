@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 import cn.lumiaj.tankWar0_4.core.Client;
+import cn.lumiaj.tankWar0_4.core.Explode;
 import cn.lumiaj.tankWar0_4.udpPackage.BulletDieMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.TankHPChangeMsg;
 import cn.lumiaj.tankWar0_4.udpPackage.TankMoveMsg;
@@ -15,17 +16,22 @@ import cn.lumiaj.utils.Direction;
 import cn.lumiaj.utils.Utils;
 
 public class Player extends Tank {
-	private boolean leftMove, rightMove, upMove, downMove, primary;
+	private boolean leftMove, rightMove, upMove, downMove, primary, explode;
 	private int HP, bigbangCount;
-	
+	private Explode e;
+
+	public void setExplode(boolean explode) {
+		this.explode = explode;
+	}
+
 	private void isHitted() {
-		if(client.isOnline() && primary) {
-			for(int i=0;i<client.getOther().size();i++) {
+		if (client.isOnline() && primary) {
+			for (int i = 0; i < client.getOther().size(); i++) {
 				List<Bullet> enemyBullets = client.getOther().get(i).getBullets();
-				for(int j=0;j<enemyBullets.size();j++) {
-					if(this.getRect().intersects(enemyBullets.get(j).getRect())) {
+				for (int j = 0; j < enemyBullets.size(); j++) {
+					if (this.getRect().intersects(enemyBullets.get(j).getRect())) {
 						this.boom();
-						this.client.getNc().send(new BulletDieMsg(client.getOther().get(i).getId(), j));
+						this.client.getNc().send(new BulletDieMsg(id, client.getOther().get(i).getId(), j));
 					}
 				}
 			}
@@ -42,7 +48,7 @@ public class Player extends Tank {
 		}
 		ptDirection = mark;
 		HP -= 5;
-		if(client.isOnline())
+		if (client.isOnline())
 			client.getNc().send(new TankHPChangeMsg(HP, id));
 		// bigbangCount--;
 	}
@@ -50,7 +56,8 @@ public class Player extends Tank {
 	@Override
 	public void boom() {
 		HP -= 10;
-		if(client.isOnline())
+		explode = true;
+		if (client.isOnline())
 			client.getNc().send(new TankHPChangeMsg(HP, id));
 		if (HP <= 0) {
 			client.gameOver();
@@ -120,6 +127,13 @@ public class Player extends Tank {
 	}
 
 	public void paint(Graphics g) {
+		if (explode) {
+			if (e == null)
+				e = new Explode(x, y);
+			explode = e.paint(g);
+			if (!explode)
+				e = null;
+		}
 		if (HP <= 30) {
 			Color c = g.getColor();
 			g.setColor(Color.red);
@@ -203,17 +217,19 @@ public class Player extends Tank {
 		}
 
 	}
-	
+
 	/**
 	 * 通过接受服务器指令调用Others中坦克的血量设置，Player不调用此方法
+	 * 
 	 * @param hP
 	 */
 	public void setHP(int hP) {
 		HP = hP;
 	}
-	
+
 	/**
 	 * 用于和Other区分开，在检测是否被击中时
+	 * 
 	 * @param primary
 	 */
 	public void setPrimary(boolean primary) {
@@ -236,6 +252,8 @@ public class Player extends Tank {
 		this.HP = 100;
 		this.bigbangCount = 3;
 		this.primary = false;
+		this.e = null;
+		this.explode = false;
 	}
 
 }

@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
 import cn.lumiaj.tankWar0_4.core.Client;
 
 public class BulletDieMsg implements UDPPackage {
-	private int msgType, id, num;
+	private int msgType, id, num, hittedID;
 	private Client client;
 	
 	@Override
@@ -21,6 +21,7 @@ public class BulletDieMsg implements UDPPackage {
 		try {
 			dos.writeInt(msgType);
 			dos.writeInt(id);
+			dos.writeInt(hittedID);
 			dos.writeInt(num);
 			byte[] bytes = baos.toByteArray();
 			DatagramPacket dp = new DatagramPacket(bytes, bytes.length, new InetSocketAddress(ip, udpPort));
@@ -34,6 +35,7 @@ public class BulletDieMsg implements UDPPackage {
 	public void parse(DataInputStream dis) {
 		try {
 			id = dis.readInt();
+			hittedID = dis.readInt();
 			num = dis.readInt();
 			if(id == client.getPlayer().getId()) {
 				client.getPlayer().getBullets().remove(num);
@@ -42,15 +44,19 @@ public class BulletDieMsg implements UDPPackage {
 				if(client.getOther().get(i).getId() == id) {
 					client.getOther().get(i).getBullets().remove(num);
 				}
+				if(client.getOther().get(i).getId() == hittedID) {
+					client.getOther().get(i).setExplode(true);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public BulletDieMsg(int id, int num) {
+	public BulletDieMsg(int hittedID, int id, int num) {
 		this();
 		this.id = id;
+		this.hittedID = hittedID;
 		this.num = num;
 	}
 	

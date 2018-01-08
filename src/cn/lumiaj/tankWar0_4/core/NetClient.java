@@ -24,12 +24,14 @@ public class NetClient {
 	private Client client;
 	private DatagramSocket ds = null;
 	private boolean existDs;
+	private String serverIP;
 
 	public void setUdpPort(int udpPort) {
 		this.udpPort = udpPort;
 	}
 
 	public boolean connect(String ip, int port) {
+		this.serverIP = ip;
 		if(!existDs) {
 			try {
 				ds = new DatagramSocket(udpPort);
@@ -69,7 +71,7 @@ public class NetClient {
 	}
 
 	public void send(UDPPackage data) {
-		data.send(ds, "localhost", Server.UDP_PORT);
+		data.send(ds, serverIP, 12334);
 	}
 
 	public DatagramSocket getDs() {
